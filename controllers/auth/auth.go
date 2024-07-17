@@ -2,12 +2,14 @@ package auth
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/Utkar5hM/delulufam/utils/config"
 	"github.com/Utkar5hM/delulufam/utils/render"
 	"github.com/Utkar5hM/delulufam/views"
+	"github.com/doug-martin/goqu/v9"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	echojwt "github.com/labstack/echo-jwt/v4"
@@ -70,28 +72,27 @@ func (h *Handler) RegisterPost(c echo.Context) error {
 }
 
 func (h *Handler) LoginPost(c echo.Context) error {
-	user := new(UserLogin)
-	if err := c.Bind(user); err != nil {
-		return err
-	}
+	username := c.FormValue("username")
+	password := c.FormValue("password")
 
 	fetched_user := &User{}
 	var isAdmin bool
-	err := h.DB.QueryRow(context.Background(), "SELECT username, password, admin, role FROM users WHERE username=$1", user.Username).Scan(&fetched_user.Username, &fetched_user.Password, &isAdmin, &fetched_user.Role)
-	if err != nil {
-		return echo.ErrUnauthorized
+	sql, _, _ := goqu.From("users").Where(goqu.C("username").Eq(username)).Select("username", "password", "admin", "role").ToSQL()
+	row := h.DB.QueryRow(context.Background(), sql)
+	if err := row.Scan(&fetched_user.Username, &fetched_user.Password, &isAdmin, &fetched_user.Role); err != nil {
+		log.Fatalf("Error fetching row: %v", err)
 	}
 	if isAdmin {
 		fetched_user.Admin = "true"
 	} else {
 		fetched_user.Admin = "false"
 	}
-	if err := bcrypt.CompareHashAndPassword([]byte(fetched_user.Password), []byte(user.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(fetched_user.Password), []byte(password)); err != nil {
 		return echo.ErrUnauthorized
 	}
 
 	claims := &JwtCustomClaims{
-		user.Username,
+		fetched_user.Username,
 		fetched_user.Admin,
 		fetched_user.Role,
 		jwt.RegisteredClaims{
@@ -107,7 +108,12 @@ func (h *Handler) LoginPost(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-
+	cookie := new(http.Cookie)
+	cookie.Name = "jwt"
+	cookie.Value = t
+	cookie.Expires = time.Now().Add(24 * time.Hour)
+	cookie.Path = "/"
+	c.SetCookie(cookie)
 	return c.JSON(http.StatusOK, echo.Map{
 		"token": t,
 	})
@@ -128,6 +134,7 @@ func IsLoggedIn(jwt_secret string) echo.MiddlewareFunc {
 		NewClaimsFunc: func(c echo.Context) jwt.Claims {
 			return new(JwtCustomClaims)
 		},
-		SigningKey: []byte(jwt_secret),
+		SigningKey:  []byte(jwt_secret),
+		TokenLookup: "header:Authorization,cookie:jwt",
 	})
 }

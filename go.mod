@@ -11,7 +11,10 @@ require (
 	github.com/labstack/echo/v4 v4.12.0
 )
 
-require github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+require (
+	github.com/doug-martin/goqu/v9 v9.19.0 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+)
 
 require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
