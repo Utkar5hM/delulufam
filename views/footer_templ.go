@@ -8,7 +8,7 @@ package views
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-func Login() templ.Component {
+func footer() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -26,10 +26,6 @@ func Login() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<html><head><link rel=\"stylesheet\" href=\"/static/assets/css/styles.css\"><!-- Ensure HTMX is included --><script src=\"https://unpkg.com/htmx.org\"></script></head><body class=\"bg-white\"><div class=\"relative isolate px-6 pt-14 lg:px-8\"><div class=\"text-center\"><h1 class=\"text-3xl font-bold text-gray-800\">Login</h1><p class=\"text-gray-500\">Login to your account</p></div><div class=\"mt-8\"><div class=\"mb-4\"><form action=\"/users/oauth/google/login\" method=\"POST\"><button type=\"submit\" class=\"w-full px-3 py-4 text-white bg-red-500 rounded-lg flex items-center justify-center\">Login with Google</button></form></div></div></div></body></html>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
 		return templ_7745c5c3_Err
 	})
 }

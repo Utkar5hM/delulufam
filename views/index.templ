@@ -1,18 +1,19 @@
 package views
 
-import "time"
 
 templ Index() {
 	<html>
-	<head><link rel="stylesheet" href="/assets/css/styles.css"/></head>
-		<body class="bg-white">
-			<div class="relative isolate px-6 pt-14 lg:px-8">
-				<div class="text-center">
-					<h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-						The current time is: { time.Now().Format(time.RFC3339) }
-					</h1>
-				</div>
+	<head><link rel="stylesheet" href="/static/assets/css/styles.css"/></head>
+		<body >
+			@navbar()
+			<div class="container mx-auto py-4">
+			huhh, cards here:
+			@playlistCard("No sheets tutorial", 
+			"utkar5hM", 
+			"https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp")
 			</div>
+			@footer()
 		</body>
+		<script src="/static/assets/js/preline.js"></script>
 	</html>
 }

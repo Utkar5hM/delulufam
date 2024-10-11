@@ -20,7 +20,7 @@ func restricted(c echo.Context) error {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(*auth.JwtCustomClaims)
 	username := claims.Username
-	message := fmt.Sprintf("Welcome %s!\nYour Role: %s\n Are you an admin:%s", username, claims.Role, claims.Admin)
+	message := fmt.Sprintf("Welcome %s!\nYour Role: %s", username, claims.Role)
 	return c.String(http.StatusOK, message)
 	// return c.String(http.StatusOK, "Welcome!")
 }
@@ -47,10 +47,13 @@ func main() {
 		return render.Render(c, http.StatusOK, views.Index())
 	})
 
+	e.GET("/view", func(c echo.Context) error {
+		return render.Render(c, http.StatusOK, views.ViewPlaylist())
+	})
 	authGroup := e.Group("/users")
 	auth.UseSubroute(authGroup, dbpool, cfg)
 
-	e.Static("/assets/", "assets")
+	e.Static("/static/", "static")
 	// Restricted group
 	r := e.Group("/restricted")
 

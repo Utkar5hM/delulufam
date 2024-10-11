@@ -12,8 +12,10 @@ require (
 )
 
 require (
+	cloud.google.com/go/compute/metadata v0.3.0 // indirect
 	github.com/doug-martin/goqu/v9 v9.19.0 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+	golang.org/x/oauth2 v0.23.0 // indirect
 )
 
 require (
