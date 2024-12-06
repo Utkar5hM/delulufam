@@ -11,7 +11,7 @@ import (
 )
 
 func UseSubroute(g *echo.Group, db *pgxpool.Pool, cfg *config.Config) {
-	h := &Handler{DB: db, config: cfg}
+	h := &authHandler{config.Handler{DB: db, Config: cfg}}
 	g.POST("/oauth/google/login", h.GoogleLogin)
 	g.GET("/oauth/google/callback", h.GoogleCallback)
 	g.GET("/login", func(c echo.Context) error {

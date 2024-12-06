@@ -1,17 +1,10 @@
 package auth
 
 import (
-	"github.com/Utkar5hM/delulufam/utils/config"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 )
-
-type Handler struct {
-	DB     *pgxpool.Pool
-	config *config.Config
-}
 
 type User struct {
 	Username string `json:"username"`

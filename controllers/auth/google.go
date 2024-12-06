@@ -6,25 +6,30 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Utkar5hM/delulufam/utils/config"
 	"github.com/doug-martin/goqu/v9"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/oauth2"
 )
 
-func (h *Handler) GoogleLogin(c echo.Context) error {
-	url := h.config.GoogleLoginConfig.AuthCodeURL("state", oauth2.AccessTypeOffline)
+type authHandler struct {
+	config.Handler
+}
+
+func (h *authHandler) GoogleLogin(c echo.Context) error {
+	url := h.Config.GoogleLoginConfig.AuthCodeURL("state", oauth2.AccessTypeOffline)
 	return c.Redirect(http.StatusTemporaryRedirect, url)
 }
 
-func (h *Handler) GoogleCallback(c echo.Context) error {
+func (h *authHandler) GoogleCallback(c echo.Context) error {
 	code := c.QueryParam("code")
-	token, err := h.config.GoogleLoginConfig.Exchange(context.Background(), code)
+	token, err := h.Config.GoogleLoginConfig.Exchange(context.Background(), code)
 	if err != nil {
 		return err
 	}
 
-	client := h.config.GoogleLoginConfig.Client(context.Background(), token)
+	client := h.Config.GoogleLoginConfig.Client(context.Background(), token)
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
 	if err != nil {
 		return err
@@ -65,7 +70,7 @@ func (h *Handler) GoogleCallback(c echo.Context) error {
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 		},
 	}
-	tokenString, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(h.config.JWT_SECRET))
+	tokenString, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(h.Config.JWT_SECRET))
 	if err != nil {
 		return err
 	}

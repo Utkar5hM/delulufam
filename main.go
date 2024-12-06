@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/Utkar5hM/delulufam/controllers/auth"
+	"github.com/Utkar5hM/delulufam/controllers/instances"
 	"github.com/Utkar5hM/delulufam/utils/config"
 	"github.com/Utkar5hM/delulufam/utils/render"
 	"github.com/Utkar5hM/delulufam/views"
@@ -52,6 +53,10 @@ func main() {
 	})
 	authGroup := e.Group("/users")
 	auth.UseSubroute(authGroup, dbpool, cfg)
+
+	instanceGroup := e.Group("/instances")
+	instances.UseSubroute(instanceGroup, dbpool, cfg)
+	// instanceGroup.Use(auth.IsLoggedIn(cfg.JWT_SECRET))
 
 	e.Static("/static/", "static")
 	// Restricted group
