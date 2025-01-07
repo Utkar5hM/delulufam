@@ -2,17 +2,23 @@ package instances
 
 import (
 	"context"
+	"encoding/json"
+	"net/http"
 
 	"github.com/doug-martin/goqu/v9"
 	"github.com/labstack/echo/v4"
 )
 
+type Scope struct {
+	Username string `json:"username"`
+}
+
 func (h *instanceHandler) deviceAuthorization(c echo.Context) error {
 	clientId := c.FormValue("client_id")
-	username := c.FormValue("username")
+	scope := c.FormValue("scope")
 	clientIP := c.RealIP()
 
-	sql, _, _ := goqu.From("instances").Where(goqu.C("client_id").Eq(clientId)).Select("client_id").ToSQL()
+	sql, _, _ := goqu.From("instances").Where(goqu.C("client_id").Eq(clientId)).Select("id").ToSQL()
 
 	row := h.DB.QueryRow(context.Background(), sql)
 	var instanceId int
@@ -22,9 +28,17 @@ func (h *instanceHandler) deviceAuthorization(c echo.Context) error {
 			"error": "Invalid client_id",
 		})
 	}
+	var scopeData Scope
+	err = json.Unmarshal([]byte(scope), &scopeData)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error":   "Invalid scope",
+			"message": "Scope must be a valid JSON string",
+		})
+	}
 	return c.JSON(200, echo.Map{
 		"clientId": clientId,
-		"username": username,
+		"username": scopeData.Username,
 		"clientIP": clientIP,
 	})
 }

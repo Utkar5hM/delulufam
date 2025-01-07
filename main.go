@@ -55,6 +55,7 @@ func main() {
 	auth.UseSubroute(authGroup, dbpool, cfg)
 
 	instanceGroup := e.Group("/instances")
+	instanceGroup.Use(auth.IsLoggedIn(cfg.JWT_SECRET))
 	instances.UseSubroute(instanceGroup, dbpool, cfg)
 	// instanceGroup.Use(auth.IsLoggedIn(cfg.JWT_SECRET))
 

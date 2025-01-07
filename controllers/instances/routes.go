@@ -9,6 +9,7 @@ import (
 func UseSubroute(g *echo.Group, db *pgxpool.Pool, cfg *config.Config) {
 	authGroup := g.Group("/auth")
 	useAuthSubroute(authGroup, db, cfg)
+	useInstanceRoutes(g, db, cfg)
 }
 
 func useAuthSubroute(g *echo.Group, db *pgxpool.Pool, cfg *config.Config) {
@@ -17,4 +18,10 @@ func useAuthSubroute(g *echo.Group, db *pgxpool.Pool, cfg *config.Config) {
 	g.POST("/token", h.token)
 	g.GET("/device", h.VerificationPage)
 	g.POST("/device/verify", h.VerifyUserCode)
+}
+
+func useInstanceRoutes(g *echo.Group, db *pgxpool.Pool, cfg *config.Config) {
+	h := &instanceHandler{config.Handler{DB: db, Config: cfg}}
+	g.POST("", h.createInstance)
+	g.DELETE(":id", h.deleteInstance)
 }
