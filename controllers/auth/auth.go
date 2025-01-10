@@ -11,11 +11,15 @@ type User struct {
 	Email    string `json:"email"`
 	Phone    string `json:"phone"`
 	Role     string `json:"role"`
+	Name     string `json:"name"`
+	Id       int    `json:"id"`
 }
 
 type JwtCustomClaims struct {
+	Name     string `json:"name"`
 	Username string `json:"username"`
 	Role     string `json:"role"`
+	Id       int    `json:"id"`
 	jwt.RegisteredClaims
 }
 
@@ -25,6 +29,6 @@ func IsLoggedIn(jwt_secret string) echo.MiddlewareFunc {
 			return new(JwtCustomClaims)
 		},
 		SigningKey:  []byte(jwt_secret),
-		TokenLookup: "header:Authorization,cookie:jwt",
+		TokenLookup: "header:Authorization:Bearer ,cookie:jwt",
 	})
 }

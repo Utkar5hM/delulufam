@@ -1,3 +1,3 @@
-# PamShi web
+# Delulufam
 
-repo to be renamed. :| 
+lil rfc compliant shi

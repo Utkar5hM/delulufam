@@ -1,11 +1,15 @@
 -- Write your migrate up statements here
 
+-- Create the status type
+CREATE TYPE STATUS_TYPE AS ENUM ('active', 'deleted', 'disabled');
+
 -- Create the instances table
 CREATE TABLE instances (
     id SERIAL PRIMARY KEY,
-    client_id VARCHAR(255) NOT NULL UNIQUE,
+    client_id UUID NOT NULL UNIQUE DEFAULT uuid_generate_v4(),
     "name" VARCHAR(255) NOT NULL,
-    ip_address VARCHAR(255) DEFAULT NULL,
+    host_address VARCHAR(255) DEFAULT NULL,
+    "status" STATUS_TYPE NOT NULL DEFAULT 'active',
     "description" TEXT DEFAULT NULL,
     created_by INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
