@@ -1,4 +1,4 @@
-package auth
+package authentication
 
 import (
 	"net/http"
@@ -17,4 +17,22 @@ func UseSubroute(g *echo.Group, db *pgxpool.Pool, cfg *config.Config) {
 	g.GET("/login", func(c echo.Context) error {
 		return render.Render(c, http.StatusOK, views.Login())
 	})
+}
+
+func IsAdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		user := c.Get("user").(*JwtCustomClaims)
+		if user.Role != "admin" {
+			return c.String(http.StatusUnauthorized, "Unauthorized")
+		}
+		return next(c)
+	}
+}
+
+func IsAdmin(c echo.Context) bool {
+	user := c.Get("user").(*JwtCustomClaims)
+	if user.Role != "admin" {
+		return true
+	}
+	return false
 }

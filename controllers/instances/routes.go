@@ -23,5 +23,8 @@ func useAuthSubroute(g *echo.Group, db *pgxpool.Pool, cfg *config.Config) {
 func useInstanceRoutes(g *echo.Group, db *pgxpool.Pool, cfg *config.Config) {
 	h := &instanceHandler{config.Handler{DB: db, Config: cfg}}
 	g.POST("", h.createInstance)
-	g.DELETE(":id", h.deleteInstance)
+	controlGroup := g.Group("")
+	controlGroup.Use(h.isAdminOrCreatorMiddleware)
+	controlGroup.PUT("/status/:id", h.setStatusInstance)
+	controlGroup.DELETE("/:id", h.deleteInstance)
 }

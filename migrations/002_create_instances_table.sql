@@ -1,7 +1,7 @@
 -- Write your migrate up statements here
 
 -- Create the status type
-CREATE TYPE STATUS_TYPE AS ENUM ('active', 'deleted', 'disabled');
+CREATE TYPE STATUS_TYPE AS ENUM ('active', 'disabled');
 
 -- Create the instances table
 CREATE TABLE instances (
