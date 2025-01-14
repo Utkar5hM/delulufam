@@ -15,6 +15,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/redis/go-redis/v9"
 )
 
 func restricted(c echo.Context) error {
@@ -39,6 +40,23 @@ func main() {
 		os.Exit(1)
 	}
 	defer dbpool.Close()
+
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     cfg.REDIS_DB_URL,
+		Password: cfg.REDIS_PASSWORD, // no password set
+		DB:       cfg.REDIS_DB,       // use default DB
+	})
+	var ctx = context.Background()
+	err = rdb.Set(ctx, "key", "value", 0).Err()
+	if err != nil {
+		panic(err)
+	}
+
+	val, err := rdb.Get(ctx, "key").Result()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("key", val)
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
@@ -57,9 +75,7 @@ func main() {
 	authentication.UseSubroute(authGroup, dbpool, cfg)
 
 	instanceGroup := e.Group("/instances")
-	instanceGroup.Use(authentication.IsLoggedIn(cfg.JWT_SECRET))
-	instances.UseSubroute(instanceGroup, dbpool, cfg)
-	// instanceGroup.Use(auth.IsLoggedIn(cfg.JWT_SECRET))
+	instances.UseSubroute(instanceGroup, dbpool, rdb, cfg)
 
 	e.Static("/static/", "static")
 	// Restricted group
