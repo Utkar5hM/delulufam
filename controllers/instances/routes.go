@@ -9,20 +9,19 @@ import (
 )
 
 func UseSubroute(g *echo.Group, db *pgxpool.Pool, rdb *redis.Client, cfg *config.Config) {
-	authGroup := g.Group("/auth")
-	useAuthSubroute(authGroup, db, rdb, cfg)
 	instanceGroup := g.Group("")
 	instanceGroup.Use(authentication.IsLoggedIn(cfg.JWT_SECRET))
 	useInstanceRoutes(instanceGroup, db, cfg)
 }
 
-func useAuthSubroute(g *echo.Group, db *pgxpool.Pool, rdb *redis.Client, cfg *config.Config) {
+func UseOAuthServerSubroute(g *echo.Group, db *pgxpool.Pool, rdb *redis.Client, cfg *config.Config) {
 	h := &instanceHandler{config.Handler{DB: db, Config: cfg, RDB: rdb}}
 	g.POST("/device_authorization", h.deviceAuthorization)
 	g.POST("/token", h.token)
-	g.GET("/device", h.VerificationPage)
-	g.POST("/device/verify", h.VerifyUserCode)
-	g.GET("/device/verify", h.VerifyUserCodeGET)
+	verify := g.Group("/verify")
+	verify.Use(authentication.IsLoggedIn(cfg.JWT_SECRET))
+	verify.GET("", h.VerificationPage)
+	verify.POST("", h.VerifyUserCode)
 }
 
 func useInstanceRoutes(g *echo.Group, db *pgxpool.Pool, cfg *config.Config) {

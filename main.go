@@ -76,7 +76,8 @@ func main() {
 
 	instanceGroup := e.Group("/instances")
 	instances.UseSubroute(instanceGroup, dbpool, rdb, cfg)
-
+	OAuthServerGroup := e.Group("/oauth")
+	instances.UseOAuthServerSubroute(OAuthServerGroup, dbpool, rdb, cfg)
 	e.Static("/static/", "static")
 	// Restricted group
 	r := e.Group("/restricted")
